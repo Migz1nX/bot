@@ -1,0 +1,232 @@
+const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ActivityType, StringSelectMenuBuilder } = require('discord.js');
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+
+const GAME_IMAGE = 'https://media.discordapp.net/attachments/1411478273895956510/1411831493810192575/assets2Ftask_01k40rgh0jefr9581zb437b3ss2F1756667449_img_0.png';
+const userVars = {};
+const afkUsers = new Map();
+
+function getVar(id, k) { if (!userVars[id]) userVars[id] = { Money: 0, Bank: 0 }; return userVars[id][k] || 0; }
+function setVar(id, k, v) { if (!userVars[id]) userVars[id] = { Money: 0, Bank: 0 }; userVars[id][k] = v; }
+
+const SCRIPT_MAP = {
+  sab2:`local src="";local CoreGui=game:GetService("StarterGui");pcall(function() src=game:HttpGet("https://yarhm.mhi.im/scr",false) end);if src=="" then CoreGui:SetCore("SendNotification",{Title="YARHM Outage";Text="YARHM Online is currently unavailable! Using offline.";Duration=5;});src=game:HttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/source/yarhm/1.19/yarhm.lua",false) end;loadstring(src)()`,
+  '99night3':`loadstring(game:HttpGet("https://raw.githubusercontent.com/H4xScripts/Loader/refs/heads/main/loader.lua",true))()`,
+  gag3:`loadstring(game:HttpGet("https://raw.githubusercontent.com/og2xn/AirHubs/refs/heads/main/Protected_3429231241525986.lua"))()`,
+  blox3:`loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/Tsuoscripts"))()`,
+  fnf3:`loadstring(game:HttpGet("https://raw.githubusercontent.com/Laelmano24/Rael-Hub/main/main.txt"))()`,
+  brook3:`loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-cartola-hub-update-2025-50621"))()`,
+  ftf:`loadstring(game:HttpGet("https://pastefy.app/JJVhs3rK/raw"))()`,
+  mm2:`loadstring(game:HttpGet("https://rawscripts.net/raw/MM2-Yarhm-Hub"))()`,
+  mimic3:`loadstring(game:HttpGet("https://pastefy.app/mimic_all/raw"))()`,
+  forsaken2:`loadstring(game:HttpGet("https://pastefy.app/forsaken/raw"))()`,
+  bedwars2:`loadstring(game:HttpGet("https://pastefy.app/bedwars/raw"))()`,
+  ink2:`loadstring(game:HttpGet("https://raw.githubusercontent.com/ScripterVaz/InkGameAzure/main/Protected_7974105512464815.lua.txt"))()`,
+  bluelock:`loadstring(game:HttpGet("https://raw.githubusercontent.com/alan11ago/Hub/refs/heads/main/ImpHub.lua"))()`,
+  piggy:`loadstring(game:HttpGet("https://raw.githubusercontent.com/BalintTheDevXBack/Games/refs/heads/main/Piggy"))()`,
+  fnaf:`loadstring(game:HttpGet("https://raw.githubusercontent.com/liigmabalz/Projetos_Lua/main/FNaF_Doom2.lua"))()`,
+  bladeball:`loadstring(game:HttpGet("https://raw.githubusercontent.com/Akash1al/Blade-Ball-Updated-Script/refs/heads/main/Blade-Ball-Script"))()`,
+  miranda:`loadstring(game:HttpGet("https://pastefy.app/JJVhs3rK/raw"))()`,
+  lennon:`loadstring(game:HttpGet("https://pastefy.app/MJw2J4T6/raw"))()`,
+  liphyr:`loadstring(game:HttpGet("https://pastefy.app/9fgffG4l/raw"))()`,
+  mkz:`loadstring(game:HttpGet("https://raw.githubusercontent.com/murilolol/nslx-autojoiner/refs/heads/main/free.lua"))()`,
+  vortex:`key="HERE_YOUR_KEY"\nloadstring(game:HttpGet("https://backend.unban.cc/api/lua/loader"))()`,
+  naburu:`loadstring(game:HttpGet("https://raw.githubusercontent.com/NaburuHub/NaburuHub/refs/heads/main/HubNaburu.lua"))()`,
+  float:`loadstring(game:HttpGet("https://gist.githubusercontent.com/g65626172-eng/4e9bc989191d19f5903abc5b2c5692e0/raw/07e6f3d8393da10c91512d69f6b629d5679a7a38/gistfile1.txt"))()`,
+  nameless:`loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/Hopper/refs/heads/main/releaseass.txt"))()`,
+  killer:`loadstring(game:HttpGet("https://pastefy.app/RfArY2M3/raw"))()`,
+  control:`loadstring(game:HttpGet("https://raw.githubusercontent.com/onliengamerop/Steal-a-brainrot/refs/heads/main/Protected_3771863424757750.lua.txt"))()`,
+  chilli:`loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/a3e13a4a85ac4c2da17a6baab051ee1b.lua"))()`,
+  hopper:`_G.NSLX_KEY="FREE"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/murilolol/nslx-autojoiner/refs/heads/main/nslx%20x%20mkz.lua"))()`,
+  wick:`loadstring(game:HttpGet("https://w1ckllon.com/brainrot/Finder.lua"))()`,
+  kurd:`loadstring(game:HttpGet("https://raw.githubusercontent.com/Ninja10908/S4/refs/heads/main/Kurdhub"))()`,
+  epsillon:`loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/24a30c9b5fc50ca02c5d6de6f7e5be5e.lua"))()`,
+  trax:`loadstring(game:HttpGet("https://gitlab.com/traxscriptss/traxscriptss/-/raw/main/visual2.lua"))()`,
+  native:`loadstring(game:HttpGet("https://raw.githubusercontent.com/Superman245/sc2/refs/heads/main/s6"))()`,
+  alchemy:`loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()`,
+  banana:`loadstring(game:HttpGet("https://raw.githubusercontent.com/Catto-YFCN/Lunor_Dependencies/refs/heads/main/Loader"))()`,
+  ronix:`loadstring(game:HttpGet("https://raw.githubusercontent.com/RadeonScripts/RadeonHubMain/main/MainRobloxExploit"))()`,
+  eclipse:`loadstring(game:HttpGet("https://raw.githubusercontent.com/yolobradda/eclipsefisch/refs/heads/main/eclipsefisch"))()`,
+  black:`loadstring(game:HttpGet("https://rawscripts.net/raw/Fisch-Blackhub-Updated-zones-and-events-52148"))()`,
+  jmod:`loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Jmods-Universal-38764"))()`,
+  infyield:`loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()`,
+  nameless_exec:`loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()`,
+  '7days':`loadstring(game:HttpGet("https://rawscripts.net/raw/7-Days-To-Live-7-days-to-live-38787"))()`,
+  ringta:`loadstring(game:HttpGet("https://raw.githubusercontent.com/wefwef127382/inkgames.github.io/refs/heads/main/ringta.lua"))()`,
+  azure:`loadstring(game:HttpGet("https://raw.githubusercontent.com/ScripterVaz/InkGameAzure/main/Protected_7974105512464815.lua.txt"))()`
+};
+
+async function replyScript(interaction, id) {
+  const code = SCRIPT_MAP[id];
+  if (!code) return interaction.reply({ content: 'Script não disponível.', ephemeral: true });
+  try {
+    await interaction.reply({ embeds: [{ title: `Script — ${id}`, description: '```lua\n' + code + '\n```', color: 0xff0000, image: { url: GAME_IMAGE }], ephemeral: true });
+  } catch (e) {
+    try { await interaction.followUp({ content: '```lua\n' + code + '\n```', ephemeral: true }); } catch {}
+  }
+}
+
+client.once('ready', () => {
+  console.log(`Logado como ${client.user.tag}!`);
+  client.user.setPresence({ activities: [{ name: 'Roblox', type: ActivityType.Playing }], status: 'online' });
+});
+
+client.on('interactionCreate', async interaction => {
+  try {
+    if (interaction.isStringSelectMenu()) {
+      const id = interaction.customId;
+      const value = interaction.values[0];
+      if (id === 'universal') return replyScript(interaction, value);
+      return;
+    }
+    if (!interaction.isButton()) return;
+    const id = interaction.customId;
+    if (id === 'pag2') {
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('fnf3').setLabel('Funky Friday').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('brook3').setLabel('Brookhaven').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('ftf').setLabel('Flee The Facility').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('mm2').setLabel('Murder Mystery 2').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('pag3').setLabel('Página 3').setStyle(ButtonStyle.Primary)
+      );
+      return interaction.update({ embeds: [{ title: 'Página 2 — Scripts', description: 'Escolha um jogo', color: 0xff0000, image: { url: GAME_IMAGE } }], components: [row] });
+    }
+    if (id === 'pag3') {
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('mimic3').setLabel('Mimic (All chapters)').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('forsaken2').setLabel('Forsaken').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('bedwars2').setLabel('Bedwars').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('ink2').setLabel('Ink Game').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('pag4').setLabel('Página 4').setStyle(ButtonStyle.Primary)
+      );
+      return interaction.update({ embeds: [{ title: 'Página 3 — Scripts', description: 'Escolha um jogo', color: 0xff0000, image: { url: GAME_IMAGE } }], components: [row] });
+    }
+    if (id === 'pag4') {
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('bluelock').setLabel('Blue Lock').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('piggy').setLabel('Piggy').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('fnaf').setLabel('FNaF Doom').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId('bladeball').setLabel('Blade Ball').setStyle(ButtonStyle.Primary)
+      );
+      return interaction.update({ embeds: [{ title: 'Página 4 — Scripts', description: 'Escolha um jogo', color: 0xff0000, footer: { text: 'Última página' }, image: { url: GAME_IMAGE } }], components: [row] });
+    }
+    if (SCRIPT_MAP[id]) return replyScript(interaction, id);
+    return interaction.reply({ content: 'Ação não encontrada para esse botão.', ephemeral: true });
+  } catch (err) {
+    console.error('Err interaction:', err);
+    try { if (!interaction.replied) await interaction.reply({ content: 'Erro ao processar interação.', ephemeral: true }); } catch {}
+  }
+});
+
+client.on('messageCreate', async message => {
+  if (message.author.bot) return;
+  const content = message.content.trim();
+  if (content === '-script') {
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('sab2').setLabel('Steal a brainrot').setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId('99night3').setLabel('99nights').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('gag3').setLabel('Grow A Garden').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('blox3').setLabel('Blox Fruits').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('pag2').setLabel('Página 2').setStyle(ButtonStyle.Primary)
+    );
+    const embed = new EmbedBuilder().setTitle('Scripts de jogos').setDescription('Acesse o servidor oficial!').setImage(GAME_IMAGE).setColor(0xff0000).setFooter({ text: 'https://discord.gg/6t5ga4NT' });
+    return message.reply({ embeds: [embed], components: [row] });
+  }
+
+  if (content === '-work') {
+    const m = getVar(message.author.id, 'Money');
+    setVar(message.author.id, 'Money', m + 150);
+    return message.reply({ content: `Você ganhou R$150! Total: R$${m + 150}`, ephemeral: true });
+  }
+
+  if (content === '-carteira' || content === '-money') {
+    const m = getVar(message.author.id, 'Money');
+    return message.reply({ content: `Você tem R$${m}`, ephemeral: true });
+  }
+
+  if (content.startsWith('-bank')) {
+    const parts = content.split(' ');
+    const v = parseInt(parts[1]);
+    if (!v || v < 1) return message.reply({ content: 'Valor inválido.', ephemeral: true });
+    const money = getVar(message.author.id, 'Money');
+    if (money < v) return message.reply({ content: 'Você não tem dinheiro suficiente.', ephemeral: true });
+    setVar(message.author.id, 'Money', money - v);
+    setVar(message.author.id, 'Bank', getVar(message.author.id, 'Bank') + v);
+    return message.reply({ content: `Você depositou R$${v} no banco.`, ephemeral: true });
+  }
+
+  if (content.startsWith('-bpegar')) {
+    const parts = content.split(' ');
+    const v = parseInt(parts[1]);
+    if (!v || v < 1) return message.reply({ content: 'Valor inválido.', ephemeral: true });
+    const bank = getVar(message.author.id, 'Bank');
+    if (bank < v) return message.reply({ content: 'Você não tem esse valor no banco.', ephemeral: true });
+    setVar(message.author.id, 'Bank', bank - v);
+    setVar(message.author.id, 'Money', getVar(message.author.id, 'Money') + v);
+    return message.reply({ content: `Você retirou R$${v} do banco.`, ephemeral: true });
+  }
+
+  if (content.startsWith('-enviar') || content.startsWith('-give')) {
+    const parts = content.split(' ');
+    const u = message.mentions.users.first();
+    const v = parseInt(parts[2]);
+    if (!u || !v || v < 1) return message.reply({ content: 'Uso: -enviar @user <valor>', ephemeral: true });
+    const me = getVar(message.author.id, 'Money');
+    if (me < v) return message.reply({ content: 'Você não tem dinheiro suficiente.', ephemeral: true });
+    setVar(message.author.id, 'Money', me - v);
+    setVar(u.id, 'Money', getVar(u.id, 'Money') + v);
+    return message.reply({ content: `Você enviou R$${v} para ${u.username}.`, ephemeral: true });
+  }
+
+  if (content === '-cassino') {
+    const arr = [200,220,400,3100,2000,500,100,3000,2500,100,600];
+    const ganho = arr[Math.floor(Math.random()*arr.length)];
+    setVar(message.author.id, 'Money', getVar(message.author.id, 'Money') + ganho);
+    return message.reply({ content: `🎰 Você ganhou R$${ganho}!`, ephemeral: true });
+  }
+
+  if (content === '-topglobal') {
+    const lb = Object.entries(userVars).sort((a,b)=>b[1].Money-a[1].Money).slice(0,10).map((e,i)=>`${i+1}. <@${e[0]}>: R$${e[1].Money}`).join('\n') || 'Ninguém ainda';
+    return message.reply({ content: `🏆 Top 10:\n${lb}`, ephemeral: true });
+  }
+
+  if (content.startsWith('-clear')) {
+    if (!message.member.permissions.has('MANAGE_MESSAGES')) return message.reply({ content: 'Você não tem permissão.', ephemeral: true });
+    const parts = content.split(' ');
+    const qtd = parseInt(parts[1]);
+    if (!qtd || qtd < 1) return message.reply({ content: 'Informe um número válido.', ephemeral: true });
+    await message.channel.bulkDelete(qtd, true);
+    return message.reply({ content: `${qtd} mensagens apagadas.`, ephemeral: true });
+  }
+
+  if (content.startsWith('-afk')) {
+    const reason = content.slice(4).trim() || 'AFK';
+    afkUsers.set(message.author.id, reason);
+    return message.reply({ content: `Você está AFK: ${reason}`, ephemeral: true });
+  }
+
+  if (afkUsers.has(message.author.id) && !content.startsWith('-afk')) {
+    afkUsers.delete(message.author.id);
+    message.reply({ content: 'Bem-vindo de volta! Seu AFK foi removido.', ephemeral: true });
+  }
+
+  if (message.mentions.users.size) {
+    message.mentions.users.forEach(u => {
+      if (afkUsers.has(u.id)) message.reply({ content: `${u.username} está AFK: ${afkUsers.get(u.id)}`, ephemeral: true });
+    });
+  }
+
+  if (content.startsWith('-rules')) {
+    if (!message.member.permissions.has('ADMINISTRATOR')) return message.reply({ content: 'Apenas administradores podem usar este comando.', ephemeral: true });
+    const text = `Regras do servidor:
+1. Proibido 18+ (Banimento)
+2. Respeitar staff e membros
+3. Proibido linguagem inadequada
+4. Não marcar staff/dono sem motivo
+5. Não usar @everyone sem necessidade
+6. Não abusar de privilégios`;
+    return message.reply({ content: text, ephemeral: true });
+  }
+
+});
+
+client.login(process.env.BOT_TOKEN || 'SEU_TOKEN_AQUI');
